@@ -15,7 +15,7 @@ export default function InventoryPage() {
   const [showItemModal, setShowItemModal] = useState(false);
   const [showTxnModal, setShowTxnModal] = useState(false);
   const [txnType, setTxnType] = useState<'RECEIVE' | 'ISSUE'>('RECEIVE');
-  const [newItem, setNewItem] = useState({ sku: '', name: '', unit: 'pcs', reorder_level: 10, unit_cost: 0 });
+  const [newItem, setNewItem] = useState({ sku: '', name: '', description: '', unit: 'pcs', reorder_level: 10, unit_cost: 0 });
   const [txn, setTxn] = useState({ item_id: '', quantity: 1, reference: '', notes: '' });
 
   const load = async () => {
@@ -34,7 +34,8 @@ export default function InventoryPage() {
 
   const filtered = inventory.filter((i) =>
     i.items?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    i.items?.sku?.toLowerCase().includes(search.toLowerCase())
+    i.items?.sku?.toLowerCase().includes(search.toLowerCase()) ||
+    i.items?.description?.toLowerCase().includes(search.toLowerCase())
   );
 
   const addItem = async () => {
@@ -42,7 +43,7 @@ export default function InventoryPage() {
     if (error) { toast.error(error.message); return; }
     toast.success('Item added!');
     setShowItemModal(false);
-    setNewItem({ sku: '', name: '', unit: 'pcs', reorder_level: 10, unit_cost: 0 });
+    setNewItem({ sku: '', name: '', description: '', unit: 'pcs', reorder_level: 10, unit_cost: 0 });
     load();
   };
 
@@ -92,7 +93,7 @@ export default function InventoryPage() {
         <input
           className="input"
           style={{ paddingLeft: 38 }}
-          placeholder="Search by name or SKU..."
+          placeholder="Search by part number, drawing number or description..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -109,8 +110,9 @@ export default function InventoryPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>SKU</th>
-                <th>Name</th>
+                <th>Part Number</th>
+                <th>Drawing Number</th>
+                <th>Description</th>
                 <th>Unit</th>
                 <th>Qty on Hand</th>
                 <th>Reorder Level</th>
@@ -121,12 +123,13 @@ export default function InventoryPage() {
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={8} style={{ textAlign: 'center', color: '#64748b', padding: 32 }}>No items found</td></tr>
+                <tr><td colSpan={9} style={{ textAlign: 'center', color: '#64748b', padding: 32 }}>No items found</td></tr>
               ) : filtered.map((inv) => {
                 const level = stockLevel(inv.quantity, inv.items?.reorder_level || 10);
                 return (
                   <tr key={inv.id}>
                     <td style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#475569' }}>{inv.items?.sku}</td>
+                    <td style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#475569' }}>{inv.items?.description || '—'}</td>
                     <td style={{ fontWeight: 500 }}>{inv.items?.name}</td>
                     <td style={{ color: '#64748b' }}>{inv.items?.unit}</td>
                     <td style={{ fontWeight: 600, fontSize: 16 }}>{inv.quantity.toLocaleString()}</td>
@@ -146,11 +149,14 @@ export default function InventoryPage() {
       {showItemModal && (
         <Modal title="Add New Item" onClose={() => setShowItemModal(false)}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <Field label="SKU">
-              <input className="input" placeholder="e.g. ITEM-001" value={newItem.sku} onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })} />
+            <Field label="Part Number">
+              <input className="input" placeholder="e.g. PN-001" value={newItem.sku} onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })} />
             </Field>
-            <Field label="Name">
-              <input className="input" placeholder="Item name" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+            <Field label="Drawing Number">
+              <input className="input" placeholder="e.g. DWG-001" value={newItem.description || ''} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} />
+            </Field>
+            <Field label="Description">
+              <input className="input" placeholder="Item description" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
             </Field>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
               <Field label="Unit">
@@ -182,7 +188,7 @@ export default function InventoryPage() {
             <Field label="Item">
               <select className="input" value={txn.item_id} onChange={(e) => setTxn({ ...txn, item_id: e.target.value })}>
                 <option value="">Select item...</option>
-                {items.map((i) => <option key={i.id} value={i.id}>{i.name} ({i.sku})</option>)}
+                {items.map((i) => <option key={i.id} value={i.id}>{i.name} — {i.sku}</option>)}
               </select>
             </Field>
             <Field label="Quantity">
