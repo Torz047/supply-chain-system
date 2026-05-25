@@ -9,6 +9,7 @@ import {
   ScanLine,
   Factory,
   ChevronRight,
+  ClipboardList,
 } from 'lucide-react';
 
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
   { href: '/inventory', label: 'Inventory', icon: Package },
   { href: '/purchasing', label: 'Purchasing', icon: ShoppingCart },
   { href: '/logistics', label: 'Logistics', icon: Truck },
+  { href: '/ot-list', label: 'OT List', icon: ClipboardList },
   { href: '/planning/ocr', label: 'OCR Upload', icon: ScanLine },
 ];
 
