@@ -121,8 +121,8 @@ export default function OTListPage() {
     return matchSearch && matchStatus && matchSite;
   });
 
-  const sites = [...new Set(records.map((r) => r.site).filter(Boolean))];
-  const statuses = [...new Set(records.map((r) => r.general_status).filter(Boolean))];
+  const sites = Array.from(new Set(records.map((r) => r.site).filter(Boolean)));
+  const statuses = Array.from(new Set(records.map((r) => r.general_status).filter(Boolean)));
 
   const openNew = () => { setEditRecord({ ...EMPTY }); setShowModal(true); setActiveTab('basic'); };
   const openEdit = (r: OTRecord) => { setEditRecord({ ...r }); setShowModal(true); setActiveTab('basic'); };
